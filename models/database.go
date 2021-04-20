@@ -3,18 +3,23 @@ package models
 import (
 	"fmt"
 	"os"
+	"regexp"
 
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/joho/godotenv"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
-var db *gorm.DB //database
+var Db *gorm.DB //database
+
+const projectDirName = "echolearn"
 
 func init() {
+	re := regexp.MustCompile(`^(.*` + projectDirName + `)`)
+	cwd, _ := os.Getwd()
+	rootPath := re.Find([]byte(cwd))
 
-	e := godotenv.Load() //Load .env file
+	e := godotenv.Load(string(rootPath) + `/.env`) //Load .env file
 	if e != nil {
 		fmt.Print(e)
 	}
@@ -25,17 +30,16 @@ func init() {
 	dbHost := os.Getenv("DB_HOST")
 
 	dsn := fmt.Sprintf("%s:%s@(%s)/%s?charset=utf8&parseTime=True&loc=Local", username, password, dbHost, dbName) //Build connection string
-	fmt.Println(dsn)
 
-	conn, err := gorm.Open("mysql", dsn)
+	conn, err := gorm.Open(mysql.Open(dsn))
 	if err != nil {
 		fmt.Print(err)
 	}
 
-	db = conn
+	Db = conn
 }
 
 //GetDB returns a handle to the DB object
 func GetDB() *gorm.DB {
-	return db
+	return Db
 }

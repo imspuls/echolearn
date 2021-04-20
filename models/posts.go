@@ -2,13 +2,11 @@ package models
 
 import (
 	"fmt"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 type Post struct {
 	PostId  int    `json:"post_id" gorm:"primaryKey;column:post_id"`
-	UserID  string `json:"user_id" validate:"required"`
+	ID      string `json:"user_id" validate:"required"`
 	Title   string `json:"title" validate:"required"`
 	Content string `json:"content"`
 }
@@ -35,10 +33,10 @@ func GetAllPost() Response {
 	return res
 }
 
-func (user *User) StorePost() Response {
+func (post *Post) StorePost() Response {
 	// check username on db
 	temp := &User{}
-	GetDB().Table("users").Where("username = ?", user.Username).First(temp)
+	GetDB().Table("users").Where("username = ?", post.Title).First(temp)
 	if temp.Username != "" {
 		res.Code = 400
 		res.Message = "Username already registered"
@@ -46,10 +44,7 @@ func (user *User) StorePost() Response {
 		return res
 	}
 
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	user.Password = string(hashedPassword)
-
-	result := GetDB().Create(user)
+	result := GetDB().Create(post)
 
 	if result.Error != nil {
 		fmt.Println(result.Error.Error())
@@ -63,13 +58,13 @@ func (user *User) StorePost() Response {
 	res.Code = 200
 	res.Message = "Account has been created"
 	res.Data = map[string]interface{}{
-		"user_id": user.UserId,
+		"post_id": post.PostId,
 		"token":   "",
 	}
 	return res
 }
 
-func (user *User) UpdatePost() Response {
+func (post *Post) UpdatePost() Response {
 	// check username on db
 	temp := &User{}
 	GetDB().Table("users").First(temp)
@@ -80,10 +75,7 @@ func (user *User) UpdatePost() Response {
 		return res
 	}
 
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	user.Password = string(hashedPassword)
-
-	result := GetDB().Update("name", "hello").Create(user)
+	result := GetDB().Update("name", "hello").Create(post)
 
 	if result.Error != nil {
 		fmt.Println(result.Error.Error())
@@ -96,7 +88,7 @@ func (user *User) UpdatePost() Response {
 	res.Code = 200
 	res.Message = "Account has been created"
 	res.Data = map[string]interface{}{
-		"user_id": user.UserId,
+		"user_id": post.PostId,
 		"token":   "",
 	}
 	return res
