@@ -3,7 +3,6 @@ package models
 import (
 	"fmt"
 	"os"
-	"regexp"
 
 	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
@@ -12,14 +11,15 @@ import (
 
 var Db *gorm.DB //database
 
-const projectDirName = "echolearn"
+// const projectDirName = "echolearn"
 
 func init() {
-	re := regexp.MustCompile(`^(.*` + projectDirName + `)`)
-	cwd, _ := os.Getwd()
-	rootPath := re.Find([]byte(cwd))
+	// re := regexp.MustCompile(`^(.*` + projectDirName + `)`)
+	// cwd, _ := os.Getwd()
+	// rootPath := re.Find([]byte(cwd))
 
-	e := godotenv.Load(string(rootPath) + `/.env`) //Load .env file
+	// e := godotenv.Load(string(rootPath) + `/.env`) //Load .env file
+	e := godotenv.Load() //Load .env file
 	if e != nil {
 		fmt.Print(e)
 	}
