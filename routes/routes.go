@@ -30,7 +30,7 @@ func Init() *echo.Echo {
 	e.Validator = &CustomValidator{validator: validator.New()}
 
 	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello, mofo!")
+		return c.String(http.StatusOK, "Hello, World!")
 	})
 
 	e.GET("user", controllers.GetAllUser, JwtAuthentication)

@@ -1,6 +1,8 @@
 package models
 
 import (
+	"errors"
+	"log"
 	"os"
 
 	"github.com/dgrijalva/jwt-go"
@@ -23,40 +25,27 @@ func CreateToken(user_id uint, username string) string {
 	return tokenString
 }
 
-func Login(username, password string) Response {
+func Login(username, password string) (string, error) {
 
 	user := &User{}
 
 	err := GetDB().Table("users").Where("username = ?", username).First(user).Error
 	if err != nil {
-		code := 500
-		message := "Connection error. Please retry"
+		log.Println(err)
 		if err == gorm.ErrRecordNotFound {
-			code = 404
-			message = "Username not found"
+			return "", errors.New("username not found")
 		}
 
-		res.Code = code
-		res.Message = message
-		res.Data = nil
-		return res
+		return "", errors.New("connection error. please retry")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword { //Password does not match!
-		res.Code = 400
-		res.Message = "Invalid login credentials. Please try again"
-		res.Data = nil
-		return res
+		return "", errors.New("invalid login credentials. please try again")
 	}
-	//Worked! Logged In
 
+	//Worked! Logged In
 	tokenString := CreateToken(uint(user.UserId), user.Username)
 
-	res.Code = 200
-	res.Message = "Logged In"
-	res.Data = map[string]interface{}{
-		"token": tokenString,
-	}
-	return res
+	return tokenString, nil
 }
