@@ -39,6 +39,7 @@ func Init() *echo.Echo {
 	e.DELETE("user/:id", controllers.DeleteUser)
 
 	e.POST("login", controllers.Login)
+	e.GET("token", controllers.GetTokenPayload, JwtAuthentication)
 
 	return e
 }

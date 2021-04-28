@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"os"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
@@ -18,7 +19,13 @@ type Token struct {
 }
 
 func CreateToken(user_id uint, username string) string {
-	tk := &Token{UserID: user_id, Username: username}
+	tk := &Token{
+		user_id,
+		username,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
+		},
+	}
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
 	tokenString, _ := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 
